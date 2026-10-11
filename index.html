@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Düş Sarayı - Yapay Zeka Rüya Tabircisi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-purple-100 min-h-screen font-sans flex flex-col justify-between">
+
+  <header class="border-b border-purple-900/40 bg-slate-900/60 backdrop-blur py-5 px-6">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🌙</span>
+        <div>
+          <h1 class="text-xl font-bold bg-gradient-to-r from-purple-400 to-amber-300 bg-clip-text text-transparent">Düş Sarayı</h1>
+          <p class="text-xs text-purple-400/80">Yapay Zeka Destekli Anlık Rüya Tabircisi</p>
+        </div>
+      </div>
+      <span class="text-xs bg-purple-950 text-purple-300 border border-purple-800 px-3 py-1 rounded-full font-mono">yapay-zeka-ruyatabiri.site</span>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-8 w-full grow flex flex-col gap-8">
+
+    <div class="bg-slate-900/90 border border-purple-900/50 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur">
+      <h2 class="text-lg font-bold text-amber-300 mb-2 flex items-center gap-2">
+        <span>✨ Rüyanızı Anlatın</span>
+      </h2>
+      <p class="text-xs text-purple-300/70 mb-6">
+        Gördüğünüz rüyayı ne kadar detaylı anlatırsanız, yapay zeka analizi o kadar derinlemesine olur.
+      </p>
+
+      <form onsubmit="analizEt(event)" class="space-y-5">
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-2">Rüyanızın Detayları</label>
+          <textarea id="ruyaMetni" rows="5" required placeholder="Rüyamda deniz kenarında uçuyordum..." class="w-full bg-slate-950 border border-purple-900/80 rounded-2xl p-4 text-sm text-purple-100 focus:outline-none focus:border-amber-400 transition placeholder-purple-800"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-2">Rüyadaki Baskın Duygunuz</label>
+          <select id="ruhHali" class="w-full bg-slate-950 border border-purple-900/80 rounded-xl p-3 text-xs text-purple-200 focus:outline-none focus:border-amber-400">
+            <option value="Huzurlu / Mutlu">Huzurlu / Mutlu</option>
+            <option value="Korkulu / Endişeli">Korkulu / Endişeli</option>
+            <option value="Şaşkın / Karmaşık">Şaşkın / Karmaşık</option>
+            <option value="Meraklı">Meraklı</option>
+            <option value="Nötr">Nötr</option>
+          </select>
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-2xl text-sm transition shadow-lg shadow-purple-950 flex items-center justify-center gap-2">
+          <span>🔮 Rüyamı Yorumla</span>
+        </button>
+      </form>
+    </div>
+
+    <div id="resultCard" class="hidden bg-slate-900/90 border border-purple-800/80 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-purple-900/50">
+        <h3 class="text-base font-bold text-amber-300 flex items-center gap-2">
+          <span>📜 Rüya Analiziniz</span>
+        </h3>
+        <span class="text-[10px] text-purple-400 font-mono">Tamamlandı</span>
+      </div>
+      <div id="resultText" class="text-sm text-purple-100 leading-relaxed space-y-4 whitespace-pre-line"></div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-purple-900/40 py-4 text-center text-xs text-purple-400/60">
+    © 2026 yapay-zeka-ruyatabiri.site - Tüm Hakları Saklıdır.
+  </footer>
+
+  <script>
+    async function analizEt(e) {
+      e.preventDefault();
+      const ruyaMetni = document.getElementById('ruyaMetni').value;
+      const ruhHali = document.getElementById('ruhHali').value;
+      const btn = document.getElementById('submitBtn');
+      const resultCard = document.getElementById('resultCard');
+      const resultText = document.getElementById('resultText');
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin">⏳</span> <span>Rüya Tabiri Hazırlanıyor...</span>`;
+      resultCard.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/ruya-tabir', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ruyaMetni, ruhHali })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          resultText.innerText = data.tabir;
+          resultCard.classList.remove('hidden');
+        } else {
+          alert(data.error || 'Bir hata oluştu.');
+        }
+      } catch (err) {
+        alert('Sunucuya bağlanırken hata oluştu.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>🔮 Rüyamı Yorumla</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
